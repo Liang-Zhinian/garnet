@@ -162,7 +162,7 @@ namespace Garnet.server
                         len = 0;
                         if (!RespReadUtils.ReadPtrWithLengthHeader(ref result, ref len, ref refPtr, outputPtr + outputSpan.Length))
                             return default;
-                        elements = [new ArgSlice(result, len)];
+                        elements = new ArgSlice[] { new ArgSlice(result, len) };
                     }
                 }
             }

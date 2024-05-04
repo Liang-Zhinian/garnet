@@ -10,13 +10,7 @@ using Tsavorite.core;
 
 namespace Garnet.cluster
 {
-    internal sealed class ReplicationLogCheckpointManager(
-        INamedDeviceFactory deviceFactory,
-        ICheckpointNamingScheme checkpointNamingScheme,
-        bool isMainStore,
-        bool removeOutdated = false,
-        int fastCommitThrottleFreq = 0,
-        ILogger logger = null) : DeviceLogCommitCheckpointManager(deviceFactory, checkpointNamingScheme, removeOutdated: false, fastCommitThrottleFreq, logger), IDisposable
+    internal sealed class ReplicationLogCheckpointManager : DeviceLogCommitCheckpointManager, IDisposable
     {
         public long CurrentSafeAofAddress = 0;
         public long RecoveredSafeAofAddress = 0;
@@ -24,10 +18,25 @@ namespace Garnet.cluster
         public string CurrentReplicationId = string.Empty;
         public string RecoveredReplicationId = string.Empty;
 
-        readonly bool isMainStore = isMainStore;
+        readonly bool isMainStore;
         public Action<bool, long, long> checkpointVersionShift;
 
-        readonly bool safelyRemoveOutdated = removeOutdated;
+        readonly bool safelyRemoveOutdated;
+
+        public ReplicationLogCheckpointManager(
+        INamedDeviceFactory deviceFactory,
+        ICheckpointNamingScheme checkpointNamingScheme,
+        bool isMainStore,
+        bool removeOutdated = false,
+        int fastCommitThrottleFreq = 0,
+        ILogger logger = null)
+            : base(deviceFactory, checkpointNamingScheme, removeOutdated: false, fastCommitThrottleFreq, logger)
+        {
+
+            this.isMainStore = isMainStore;
+
+            this.safelyRemoveOutdated = removeOutdated;
+        }
 
         public override void CheckpointVersionShift(long oldVersion, long newVersion)
         {

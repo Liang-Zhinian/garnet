@@ -87,7 +87,7 @@ namespace Garnet.cluster
             string username = null;
             string passwd = null;
             List<(long, long)> keysWithSize = null;
-            HashSet<int> slots = [];
+            HashSet<int> slots = new();
 
             ClusterConfig current = null;
             string sourceNodeId = null;
@@ -106,7 +106,7 @@ namespace Garnet.cluster
             //Add single key if specified
             if (sksize > 0)
             {
-                keysWithSize = [];
+                keysWithSize = new();
                 keysWithSize.Add(new(((IntPtr)singleKeyPtr).ToInt64(), sksize));
             }
 
@@ -136,7 +136,7 @@ namespace Garnet.cluster
                 }
                 else if (option.Equals("KEYS", StringComparison.OrdinalIgnoreCase))
                 {
-                    keysWithSize ??= [];
+                    keysWithSize ??= new();
                     while (args > 0)
                     {
                         byte* keyPtr = null;

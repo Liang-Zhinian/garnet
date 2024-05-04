@@ -46,7 +46,7 @@ namespace Garnet.cluster
 
         private List<byte[]> GetKeysInSlot(int slot, int keyCount)
         {
-            List<byte[]> keys = [];
+            List<byte[]> keys = new List<byte[]>();
             ClusterKeyIterationFunctions.MainStoreGetKeysInSlot mainIterFuncs = new(keys, slot, keyCount);
             _ = basicGarnetApi.IterateMainStore(ref mainIterFuncs);
 
@@ -78,7 +78,7 @@ namespace Garnet.cluster
         /// </remarks>
         private bool TryParseSlots(int count, ref byte* ptr, out HashSet<int> slots, out ReadOnlySpan<byte> errorMessage, bool range)
         {
-            slots = [];
+            slots = new HashSet<int>();
             errorMessage = default;
             var duplicate = false;
             var outOfRange = false;

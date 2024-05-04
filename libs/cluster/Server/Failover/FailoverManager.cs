@@ -9,13 +9,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Garnet.cluster
 {
-    internal sealed class FailoverManager(ClusterProvider clusterProvider, ILogger logger = null) : IDisposable
+    internal sealed class FailoverManager : IDisposable
     {
         FailoverSession currentFailoverSession = null;
-        readonly ClusterProvider clusterProvider = clusterProvider;
-        readonly TimeSpan clusterTimeout = clusterProvider.serverOptions.ClusterTimeout <= 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(clusterProvider.serverOptions.ClusterTimeout);
-        readonly ILogger logger = logger;
+        readonly ClusterProvider clusterProvider;
+        readonly TimeSpan clusterTimeout;
+        readonly ILogger logger;
         private SingleWriterMultiReaderLock failoverTaskLock;
+
+        public FailoverManager(ClusterProvider clusterProvider, ILogger logger = null)
+        {
+            this.clusterProvider = clusterProvider;
+            this.clusterTimeout = clusterProvider.serverOptions.ClusterTimeout <= 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromSeconds(clusterProvider.serverOptions.ClusterTimeout);
+            this.logger = logger;
+        }
 
         public void Dispose()
         {

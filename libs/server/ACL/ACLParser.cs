@@ -8,7 +8,7 @@ namespace Garnet.server.ACL
 {
     class ACLParser
     {
-        private static readonly char[] WhitespaceChars = [' ', '\t', '\r', '\n'];
+        private static readonly char[] WhitespaceChars = new char[] { ' ', '\t', '\r', '\n' };
 
         /// <summary>
         /// Parses a single-line ACL rule and returns a new user according to that rule.

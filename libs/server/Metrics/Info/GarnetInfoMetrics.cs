@@ -43,8 +43,8 @@ namespace Garnet.server
         private void PopulateServerInfo(StoreWrapper storeWrapper)
         {
             var uptime = TimeSpan.FromTicks(DateTimeOffset.UtcNow.Ticks - storeWrapper.startupTime);
-            serverInfo =
-            [
+            serverInfo = new MetricsItem[] {
+
                 new("garnet_version", storeWrapper.version),
                 new("garnet_mode", storeWrapper.serverOptions.EnableCluster ? "cluster" : "standalone"),
                 new("os", Environment.OSVersion.ToString()),
@@ -57,7 +57,7 @@ namespace Garnet.server
                 new("latency_monitor", storeWrapper.serverOptions.LatencyMonitor ? "enabled" : "disabled"),
                 new("run_id", storeWrapper.run_id),
                 new("redis_version", storeWrapper.redisProtocolVersion)
-            ];
+            };
         }
 
         private void PopulateMemoryInfo(StoreWrapper storeWrapper)
@@ -81,8 +81,8 @@ namespace Garnet.server
                 total_object_store_size = object_store_index_size + object_store_log_memory_references_size + object_store_read_cache_size;
             }
 
-            memoryInfo =
-            [
+            memoryInfo = new MetricsItem[]
+            {
                 new("system_page_size", Environment.SystemPageSize.ToString()),
                 new("total_system_memory", SystemMetrics.GetTotalMemory().ToString()),
                 new("total_system_memory(MB)", SystemMetrics.GetTotalMemory(1 << 20).ToString()),
@@ -112,20 +112,20 @@ namespace Garnet.server
                 new("object_store_log_memory_references_size", object_store_log_memory_references_size.ToString()),
                 new("object_store_read_cache_size", object_store_read_cache_size.ToString()),
                 new("total_object_store_size", total_object_store_size.ToString())
-            ];
+            };
         }
 
         private void PopulateClusterInfo(StoreWrapper storeWrapper)
         {
-            clusterInfo = [new("cluster_enabled", storeWrapper.serverOptions.EnableCluster ? "1" : "0")];
+            clusterInfo = new MetricsItem[] { new("cluster_enabled", storeWrapper.serverOptions.EnableCluster ? "1" : "0") };
         }
 
         private void PopulateReplicationInfo(StoreWrapper storeWrapper)
         {
             if (storeWrapper.clusterProvider == null)
             {
-                replicationInfo =
-                [
+                replicationInfo = new MetricsItem[]
+                {
                     new("role", "master"),
                     new("connected_slaves", "0"),
                     new("master_failover_state", "no-failover"),
@@ -137,7 +137,7 @@ namespace Garnet.server
                     new("store_recovered_safe_aof_address", "N/A"),
                     new("object_store_current_safe_aof_address", "N/A"),
                     new("object_store_recovered_safe_aof_address", "N/A")
-               ];
+                };
             }
             else
             {
@@ -152,8 +152,7 @@ namespace Garnet.server
             var globalMetrics = metricsDisabled ? default : storeWrapper.monitor.GlobalMetrics;
             var tt = metricsDisabled ? 0 : (double)(globalMetrics.globalSessionMetrics.get_total_found() + globalMetrics.globalSessionMetrics.get_total_notfound());
             var garnet_hit_rate = metricsDisabled ? 0 : (tt > 0 ? (double)globalMetrics.globalSessionMetrics.get_total_found() / tt : 0) * 100;
-            statsInfo =
-                [
+            statsInfo = new MetricsItem[] {
                     new("total_connections_active", metricsDisabled ? "0" : globalMetrics.total_connections_received.ToString()),
                     new("total_connections_disposed", metricsDisabled ? "0" : globalMetrics.total_connections_disposed.ToString()),
                     new("total_commands_processed", metricsDisabled ? "0" : globalMetrics.globalSessionMetrics.get_total_commands_processed().ToString()),
@@ -170,7 +169,7 @@ namespace Garnet.server
                     new("total_write_commands_processed", metricsDisabled ? "0" : globalMetrics.globalSessionMetrics.get_total_write_commands_processed().ToString()),
                     new("total_read_commands_processed", metricsDisabled ? "0" : globalMetrics.globalSessionMetrics.get_total_read_commands_processed().ToString()),
                     new("total_number_resp_server_session_exceptions", metricsDisabled ? "0" : globalMetrics.globalSessionMetrics.get_total_number_resp_server_session_exceptions().ToString())
-                ];
+            };
 
             if (clusterEnabled)
             {
@@ -184,8 +183,7 @@ namespace Garnet.server
 
         private void PopulateStoreStats(StoreWrapper storeWrapper)
         {
-            storeInfo =
-                [
+            storeInfo = new MetricsItem[] {
                     new("CurrentVersion", storeWrapper.store.CurrentVersion.ToString()),
                     new("LastCheckpointedVersion", storeWrapper.store.LastCheckpointedVersion.ToString()),
                     new("RecoveredVersion", storeWrapper.store.RecoveredVersion.ToString()),
@@ -200,13 +198,12 @@ namespace Garnet.server
                     new("Log.MemorySizeBytes", storeWrapper.store.Log.MemorySizeBytes.ToString()),
                     new("Log.SafeReadOnlyAddress", storeWrapper.store.Log.SafeReadOnlyAddress.ToString()),
                     new("Log.TailAddress", storeWrapper.store.Log.TailAddress.ToString())
-                ];
+            };
         }
 
         private void PopulateObjectStoreStats(StoreWrapper storeWrapper)
         {
-            objectStoreInfo =
-                [
+            objectStoreInfo = new MetricsItem[] {
                     new("CurrentVersion", storeWrapper.objectStore.CurrentVersion.ToString()),
                     new("LastCheckpointedVersion", storeWrapper.objectStore.LastCheckpointedVersion.ToString()),
                     new("RecoveredVersion", storeWrapper.objectStore.RecoveredVersion.ToString()),
@@ -221,36 +218,35 @@ namespace Garnet.server
                     new("Log.MemorySizeBytes", storeWrapper.objectStore.Log.MemorySizeBytes.ToString()),
                     new("Log.SafeReadOnlyAddress", storeWrapper.objectStore.Log.SafeReadOnlyAddress.ToString()),
                     new("Log.TailAddress", storeWrapper.objectStore.Log.TailAddress.ToString())
-                ];
+            };
         }
 
-        public void PopulateStoreHashDistribution(StoreWrapper storeWrapper) => storeHashDistrInfo = [new("", storeWrapper.store.DumpDistribution())];
+        public void PopulateStoreHashDistribution(StoreWrapper storeWrapper) => storeHashDistrInfo = new MetricsItem[] { new("", storeWrapper.store.DumpDistribution()) };
 
-        public void PopulateObjectStoreHashDistribution(StoreWrapper storeWrapper) => objectStoreHashDistrInfo = [new("", storeWrapper.objectStore.DumpDistribution())];
+        public void PopulateObjectStoreHashDistribution(StoreWrapper storeWrapper) => objectStoreHashDistrInfo = new MetricsItem[] { new("", storeWrapper.objectStore.DumpDistribution()) };
 
-        public void PopulateStoreRevivInfo(StoreWrapper storeWrapper) => storeRevivInfo = [new("", storeWrapper.store.DumpRevivificationStats())];
+        public void PopulateStoreRevivInfo(StoreWrapper storeWrapper) => storeRevivInfo = new MetricsItem[] { new("", storeWrapper.store.DumpRevivificationStats()) };
 
-        public void PopulateObjectStoreRevivInfo(StoreWrapper storeWrapper) => objectStoreRevivInfo = [new("", storeWrapper.objectStore.DumpRevivificationStats())];
+        public void PopulateObjectStoreRevivInfo(StoreWrapper storeWrapper) => objectStoreRevivInfo = new MetricsItem[] { new("", storeWrapper.objectStore.DumpRevivificationStats()) };
 
         public void PopulatePersistenceInfo(StoreWrapper storeWrapper)
         {
             bool aofEnabled = storeWrapper.serverOptions.EnableAOF;
-            persistenceInfo =
-                [
+            persistenceInfo = new MetricsItem[] {
                     new("CommittedBeginAddress", !aofEnabled ? "N/A" : storeWrapper.appendOnlyFile.CommittedBeginAddress.ToString()),
                     new("CommittedUntilAddress", !aofEnabled ? "N/A" : storeWrapper.appendOnlyFile.CommittedUntilAddress.ToString()),
                     new("FlushedUntilAddress", !aofEnabled ? "N/A" : storeWrapper.appendOnlyFile.FlushedUntilAddress.ToString()),
                     new("BeginAddress", !aofEnabled ? "N/A" : storeWrapper.appendOnlyFile.BeginAddress.ToString()),
                     new("TailAddress", !aofEnabled ? "N/A" : storeWrapper.appendOnlyFile.TailAddress.ToString()),
                     new("SafeAofAddress", !aofEnabled ? "N/A" : storeWrapper.SafeAofAddress.ToString())
-                ];
+            };
         }
 
         private void PopulateClientsInfo(StoreWrapper storeWrapper)
         {
             var metricsDisabled = storeWrapper.monitor == null;
             var globalMetrics = metricsDisabled ? default : storeWrapper.monitor.GlobalMetrics;
-            clientsInfo = [new("connected_clients", metricsDisabled ? "0" : (globalMetrics.total_connections_received - globalMetrics.total_connections_disposed).ToString())];
+            clientsInfo = new MetricsItem[] { new("connected_clients", metricsDisabled ? "0" : (globalMetrics.total_connections_received - globalMetrics.total_connections_disposed).ToString()) };
         }
 
         private void PopulateKeyspaceInfo(StoreWrapper storeWrapper)

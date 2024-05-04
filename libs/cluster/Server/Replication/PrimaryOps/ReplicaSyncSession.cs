@@ -14,24 +14,39 @@ using Tsavorite.core;
 
 namespace Garnet.cluster
 {
-    internal sealed class ReplicaSyncSession(StoreWrapper storeWrapper, ClusterProvider clusterProvider, string remoteNodeId, string remote_primary_replid, CheckpointEntry remoteEntry, long replicaAofBeginAddress, long replicaAofTailAddress, ILogger logger = null) : IDisposable
+    internal sealed class ReplicaSyncSession : IDisposable
     {
-        readonly StoreWrapper storeWrapper = storeWrapper;
-        readonly ClusterProvider clusterProvider = clusterProvider;
+        readonly StoreWrapper storeWrapper;
+        readonly ClusterProvider clusterProvider;
         readonly CancellationTokenSource ctsCheckpointRetrievalSession = new();
         private SectorAlignedBufferPool bufferPool = null;
         private readonly SemaphoreSlim semaphore = new(0);
 
-        public readonly string remoteNodeId = remoteNodeId;
-        public readonly string remote_primary_replid = remote_primary_replid;
-        private readonly long replicaAofBeginAddress = replicaAofBeginAddress;
-        private readonly long replicaAofTailAddress = replicaAofTailAddress;
+        public readonly string remoteNodeId;
+        public readonly string remote_primary_replid;
+        private readonly long replicaAofBeginAddress;
+        private readonly long replicaAofTailAddress;
 
-        private readonly CheckpointEntry remoteEntry = remoteEntry;
+        private readonly CheckpointEntry remoteEntry;
 
-        private readonly ILogger logger = logger;
+        private readonly ILogger logger;
 
         public string errorMsg = default;
+
+        public ReplicaSyncSession(StoreWrapper storeWrapper, ClusterProvider clusterProvider, string remoteNodeId, string remote_primary_replid, CheckpointEntry remoteEntry, long replicaAofBeginAddress, long replicaAofTailAddress, ILogger logger = null)
+        {
+
+            this.storeWrapper = storeWrapper;
+            this.clusterProvider = clusterProvider;
+
+            this.remoteNodeId = remoteNodeId;
+            this.remote_primary_replid = remote_primary_replid;
+            this.replicaAofBeginAddress = replicaAofBeginAddress;
+            this.replicaAofTailAddress = replicaAofTailAddress;
+
+            this.remoteEntry = remoteEntry;
+            this.logger = logger;
+        }
 
         public void Dispose()
         {

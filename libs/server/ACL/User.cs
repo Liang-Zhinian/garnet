@@ -216,6 +216,6 @@ namespace Garnet.server.ACL
         /// 
         /// NOTE: HashSet is not thread-safe, so accesses need to be synchronized
         /// </summary>
-        readonly HashSet<ACLPassword> _passwordHashes = [];
+        readonly HashSet<ACLPassword> _passwordHashes = new();
     }
 }

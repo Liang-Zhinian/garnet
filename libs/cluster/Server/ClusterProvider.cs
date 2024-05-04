@@ -72,14 +72,16 @@ namespace Garnet.cluster
         /// <inheritdoc />
         public void Recover()
         {
-            replicationManager.Recover();
+            //replicationManager.Recover();
         }
 
         /// <inheritdoc />
         public void Start()
         {
-            clusterManager?.Start();
-            replicationManager?.Start();
+            //clusterManager?.Start();
+            //replicationManager?.Start();
+
+            clusterManager?.RunMeetTask("localhost", 7001);
         }
 
         /// <inheritdoc />
@@ -232,15 +234,15 @@ namespace Garnet.cluster
                         replicationInfo.Add(new(ri.Item1, ri.Item2));
                 }
             }
-            return [.. replicationInfo];
+            return replicationInfo.ToArray();
         }
 
         /// <inheritdoc />
         public MetricsItem[] GetGossipStats(bool metricsDisabled)
         {
             var gossipStats = clusterManager.gossipStats;
-            return
-                [
+            return new MetricsItem[]
+                {
                     new("meet_requests_recv", metricsDisabled ? "0" : gossipStats.meet_requests_recv.ToString()),
                     new("meet_requests_succeed", metricsDisabled ? "0" : gossipStats.meet_requests_succeed.ToString()),
                     new("meet_requests_failed", metricsDisabled ? "0" : gossipStats.meet_requests_failed.ToString()),
@@ -251,7 +253,7 @@ namespace Garnet.cluster
                     new("gossip_empty_send", metricsDisabled ? "0" : gossipStats.gossip_empty_send.ToString()),
                     new("gossip_bytes_send", metricsDisabled ? "0" : gossipStats.gossip_bytes_send.ToString()),
                     new("gossip_bytes_recv", metricsDisabled ? "0" : gossipStats.gossip_bytes_recv.ToString())
-                ];
+                };
         }
 
         internal ReplicationLogCheckpointManager GetReplicationLogCheckpointManager(StoreType storeType)
